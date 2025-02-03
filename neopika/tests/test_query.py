@@ -1,6 +1,6 @@
 import unittest
 
-from neopika import Case, Query, Tables, Tuple, functions, Field
+from neopika import Case, Field, Query, Tables, Tuple, functions
 from neopika.dialects import (
     ClickHouseQuery,
     ClickHouseQueryBuilder,
@@ -13,12 +13,12 @@ from neopika.dialects import (
     OracleQueryBuilder,
     PostgreSQLQuery,
     PostgreSQLQueryBuilder,
-    RedShiftQueryBuilder,
     RedshiftQuery,
-    SQLLiteQuery,
-    SQLLiteQueryBuilder,
+    RedShiftQueryBuilder,
     SnowflakeQuery,
     SnowflakeQueryBuilder,
+    SQLLiteQuery,
+    SQLLiteQueryBuilder,
     VerticaCopyQueryBuilder,
     VerticaCreateQueryBuilder,
     VerticaQuery,
@@ -92,10 +92,16 @@ class QueryTablesTests(unittest.TestCase):
         )
 
     def test_replace_filter_tables(self):
-        query = Query.from_(self.table_a).select(self.table_a.name).where(self.table_a.name == "Mustermann")
+        query = (
+            Query.from_(self.table_a)
+            .select(self.table_a.name)
+            .where(self.table_a.name == "Mustermann")
+        )
         query = query.replace_table(self.table_a, self.table_b)
 
-        self.assertEqual('SELECT "name" FROM "b" WHERE "name"=\'Mustermann\'', str(query))
+        self.assertEqual(
+            'SELECT "name" FROM "b" WHERE "name"=\'Mustermann\'', str(query)
+        )
 
     def test_replace_having_table(self):
         query = (
@@ -107,7 +113,10 @@ class QueryTablesTests(unittest.TestCase):
         query = query.replace_table(self.table_a, self.table_b)
 
         self.assertEqual(
-            'SELECT SUM("revenue") ' 'FROM "b" ' 'GROUP BY "customer" ' 'HAVING SUM("revenue")>=1000',
+            'SELECT SUM("revenue") '
+            'FROM "b" '
+            'GROUP BY "customer" '
+            'HAVING SUM("revenue")>=1000',
             str(query),
         )
 
@@ -131,7 +140,11 @@ class QueryTablesTests(unittest.TestCase):
         )
 
     def test_replace_orderby_table(self):
-        query = Query.from_(self.table_a).select(self.table_a.customer).orderby(self.table_a.customer)
+        query = (
+            Query.from_(self.table_a)
+            .select(self.table_a.customer)
+            .orderby(self.table_a.customer)
+        )
         query = query.replace_table(self.table_a, self.table_b)
 
         self.assertEqual('SELECT "customer" FROM "b" ORDER BY "customer"', str(query))
@@ -152,7 +165,11 @@ class QueryTablesTests(unittest.TestCase):
         )
 
     def test_is_joined(self):
-        q = Query.from_(self.table_a).join(self.table_b).on(self.table_a.foo == self.table_b.boo)
+        q = (
+            Query.from_(self.table_a)
+            .join(self.table_b)
+            .on(self.table_a.foo == self.table_b.boo)
+        )
 
         self.assertTrue(q.is_joined(self.table_b))
         self.assertFalse(q.is_joined(self.table_c))
@@ -160,49 +177,49 @@ class QueryTablesTests(unittest.TestCase):
 
 class QueryBuilderTests(unittest.TestCase):
     def test_query_builders_have_reference_to_correct_query_class(self):
-        with self.subTest('QueryBuilder'):
+        with self.subTest("QueryBuilder"):
             self.assertEqual(Query, QueryBuilder.QUERY_CLS)
 
-        with self.subTest('DropQueryBuilder'):
+        with self.subTest("DropQueryBuilder"):
             self.assertEqual(Query, DropQueryBuilder.QUERY_CLS)
 
-        with self.subTest('CreateQueryBuilder'):
+        with self.subTest("CreateQueryBuilder"):
             self.assertEqual(Query, CreateQueryBuilder.QUERY_CLS)
 
-        with self.subTest('MySQLQueryBuilder'):
+        with self.subTest("MySQLQueryBuilder"):
             self.assertEqual(MySQLQuery, MySQLQueryBuilder.QUERY_CLS)
 
-        with self.subTest('MySQLLoadQueryBuilder'):
+        with self.subTest("MySQLLoadQueryBuilder"):
             self.assertEqual(MySQLQuery, MySQLLoadQueryBuilder.QUERY_CLS)
 
-        with self.subTest('VerticaQueryBuilder'):
+        with self.subTest("VerticaQueryBuilder"):
             self.assertEqual(VerticaQuery, VerticaQueryBuilder.QUERY_CLS)
 
-        with self.subTest('VerticaCreateQueryBuilder'):
+        with self.subTest("VerticaCreateQueryBuilder"):
             self.assertEqual(VerticaQuery, VerticaCreateQueryBuilder.QUERY_CLS)
 
-        with self.subTest('VerticaCopyQueryBuilder'):
+        with self.subTest("VerticaCopyQueryBuilder"):
             self.assertEqual(VerticaQuery, VerticaCopyQueryBuilder.QUERY_CLS)
 
-        with self.subTest('PostgreSQLQueryBuilder'):
+        with self.subTest("PostgreSQLQueryBuilder"):
             self.assertEqual(PostgreSQLQuery, PostgreSQLQueryBuilder.QUERY_CLS)
 
-        with self.subTest('MSSQLQueryBuilder'):
+        with self.subTest("MSSQLQueryBuilder"):
             self.assertEqual(MSSQLQuery, MSSQLQueryBuilder.QUERY_CLS)
 
-        with self.subTest('SnowflakeQueryBuilder'):
+        with self.subTest("SnowflakeQueryBuilder"):
             self.assertEqual(SnowflakeQuery, SnowflakeQueryBuilder.QUERY_CLS)
 
-        with self.subTest('ClickHouseQueryBuilder'):
+        with self.subTest("ClickHouseQueryBuilder"):
             self.assertEqual(ClickHouseQuery, ClickHouseQueryBuilder.QUERY_CLS)
 
-        with self.subTest('RedShiftQueryBuilder'):
+        with self.subTest("RedShiftQueryBuilder"):
             self.assertEqual(RedshiftQuery, RedShiftQueryBuilder.QUERY_CLS)
 
-        with self.subTest('SQLLiteQueryBuilder'):
+        with self.subTest("SQLLiteQueryBuilder"):
             self.assertEqual(SQLLiteQuery, SQLLiteQueryBuilder.QUERY_CLS)
 
-        with self.subTest('OracleQueryBuilder'):
+        with self.subTest("OracleQueryBuilder"):
             self.assertEqual(OracleQuery, OracleQueryBuilder.QUERY_CLS)
 
     def test_pipe(self) -> None:
@@ -222,7 +239,12 @@ class QueryBuilderTests(unittest.TestCase):
                 {},
                 'SELECT "test1","test2",COUNT(*) FROM "test" GROUP BY "test1","test2"',
             ),
-            (count_group, ["test1"], {}, 'SELECT "test1",COUNT(*) FROM "test" GROUP BY "test1"'),
+            (
+                count_group,
+                ["test1"],
+                {},
+                'SELECT "test1",COUNT(*) FROM "test" GROUP BY "test1"',
+            ),
         ]:
             result_str = str(base_query.pipe(func, *args, **kwargs))
             self.assertEqual(result_str, str(func(base_query, *args, **kwargs)))

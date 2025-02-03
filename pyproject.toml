@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "NeoPika"
 dynamic = ["version"]
 description = "A SQL query builder API for Python"
-readme = "README.rst"
+readme = "README.md"
 authors = [
     { name = "Timothy Heys", email = "theys@kayak.com" },
 ]
@@ -60,6 +60,7 @@ dev = [
   "tox>=4.24",
   "tox-uv>=1.20",
   "coverage==5.1",
+  "ruff>=0.9",
 ]
 docs = [
   "mkdocs>=1.6.1",
@@ -77,6 +78,50 @@ path = "neopika/__init__.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["neopika"]
+
+[tool.ruff]
+# Same as Black.
+line-length = 88
+indent-width = 4
+
+# Assume Python 3.9
+target-version = "py39"
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+]
+
+[tool.ruff.lint]
+select = ["F", "I", "T"]
+ignore = ["E501", "F841"]
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
 
 [tool.tox]
 legacy_tox_ini = """

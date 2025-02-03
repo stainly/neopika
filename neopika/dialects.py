@@ -1,19 +1,29 @@
 import itertools
 import warnings
 from copy import copy
-from typing import Any, Optional, Union, Tuple as TypedTuple, List
+from typing import Any, List, Optional, Union
+from typing import Tuple as TypedTuple
 
 from neopika.enums import Dialects
 from neopika.queries import (
     CreateQueryBuilder,
     Database,
     DropQueryBuilder,
-    Selectable,
-    Table,
     Query,
     QueryBuilder,
+    Selectable,
+    Table,
 )
-from neopika.terms import ArithmeticExpression, Criterion, EmptyCriterion, Field, Function, Star, Term, ValueWrapper
+from neopika.terms import (
+    ArithmeticExpression,
+    Criterion,
+    EmptyCriterion,
+    Field,
+    Function,
+    Star,
+    Term,
+    ValueWrapper,
+)
 from neopika.utils import QueryException, builder, format_quotes
 
 
@@ -38,7 +48,7 @@ class SnowflakeQuery(Query):
 class SnowflakeQueryBuilder(QueryBuilder):
     QUOTE_CHAR = None
     ALIAS_QUOTE_CHAR = '"'
-    QUERY_ALIAS_QUOTE_CHAR = ''
+    QUERY_ALIAS_QUOTE_CHAR = ""
     QUERY_CLS = SnowflakeQuery
 
     def __init__(self, **kwargs: Any) -> None:
@@ -105,7 +115,10 @@ class MySQLQueryBuilder(QueryBuilder):
 
     @builder
     def for_update(
-        self, nowait: bool = False, skip_locked: bool = False, of: TypedTuple[str, ...] = ()
+        self,
+        nowait: bool = False,
+        skip_locked: bool = False,
+        of: TypedTuple[str, ...] = (),
     ) -> "QueryBuilder":
         self._for_update = True
         self._for_update_skip_locked = skip_locked
@@ -113,7 +126,9 @@ class MySQLQueryBuilder(QueryBuilder):
         self._for_update_of = set(of)
 
     @builder
-    def on_duplicate_key_update(self, field: Union[Field, str], value: Any) -> "MySQLQueryBuilder":
+    def on_duplicate_key_update(
+        self, field: Union[Field, str], value: Any
+    ) -> "MySQLQueryBuilder":
         if self._ignore_duplicates:
             raise QueryException("Can not have two conflict handlers")
 
@@ -139,22 +154,24 @@ class MySQLQueryBuilder(QueryBuilder):
 
     def _for_update_sql(self, **kwargs) -> str:
         if self._for_update:
-            for_update = ' FOR UPDATE'
+            for_update = " FOR UPDATE"
             if self._for_update_of:
-                for_update += f' OF {", ".join([Table(item).get_sql(**kwargs) for item in self._for_update_of])}'
+                for_update += f" OF {', '.join([Table(item).get_sql(**kwargs) for item in self._for_update_of])}"
             if self._for_update_nowait:
-                for_update += ' NOWAIT'
+                for_update += " NOWAIT"
             elif self._for_update_skip_locked:
-                for_update += ' SKIP LOCKED'
+                for_update += " SKIP LOCKED"
         else:
-            for_update = ''
+            for_update = ""
 
         return for_update
 
     def _on_duplicate_key_update_sql(self, **kwargs: Any) -> str:
         return " ON DUPLICATE KEY UPDATE {updates}".format(
             updates=",".join(
-                "{field}={value}".format(field=field.get_sql(**kwargs), value=value.get_sql(**kwargs))
+                "{field}={value}".format(
+                    field=field.get_sql(**kwargs), value=value.get_sql(**kwargs)
+                )
                 for field, value in self._duplicate_updates
             )
         )
@@ -180,7 +197,10 @@ class MySQLQueryBuilder(QueryBuilder):
         return "SELECT {distinct}{modifier}{select}".format(
             distinct="DISTINCT " if self._distinct else "",
             modifier="{} ".format(" ".join(self._modifiers)) if self._modifiers else "",
-            select=",".join(term.get_sql(with_alias=True, subquery=True, **kwargs) for term in self._selects),
+            select=",".join(
+                term.get_sql(with_alias=True, subquery=True, **kwargs)
+                for term in self._selects
+            ),
         )
 
 
@@ -262,7 +282,9 @@ class VerticaQueryBuilder(QueryBuilder):
         sql = super().get_sql(*args, **kwargs)
 
         if self._hint is not None:
-            sql = "".join([sql[:7], "/*+label({hint})*/".format(hint=self._hint), sql[6:]])
+            sql = "".join(
+                [sql[:7], "/*+label({hint})*/".format(hint=self._hint), sql[6:]]
+            )
 
         return sql
 
@@ -357,7 +379,10 @@ class FetchNextAndOffsetRowsQueryBuilder(QueryBuilder):
 
     @builder
     def fetch_next(self, limit: int):
-        warnings.warn("`fetch_next` is deprecated - please use the `limit` method", DeprecationWarning)
+        warnings.warn(
+            "`fetch_next` is deprecated - please use the `limit` method",
+            DeprecationWarning,
+        )
         self._limit = limit
 
 
@@ -381,7 +406,7 @@ class OracleQueryBuilder(FetchNextAndOffsetRowsQueryBuilder):
     def get_sql(self, *args: Any, **kwargs: Any) -> str:
         # Oracle does not support group by a field alias
         # Note: set directly in kwargs as they are re-used down the tree in the case of subqueries!
-        kwargs['groupby_alias'] = False
+        kwargs["groupby_alias"] = False
         return super().get_sql(*args, **kwargs)
 
     def _apply_pagination(self, querystring: str, **kwargs) -> str:
@@ -443,7 +468,10 @@ class PostgreSQLQueryBuilder(QueryBuilder):
 
     @builder
     def for_update(
-        self, nowait: bool = False, skip_locked: bool = False, of: TypedTuple[str, ...] = ()
+        self,
+        nowait: bool = False,
+        skip_locked: bool = False,
+        of: TypedTuple[str, ...] = (),
     ) -> "QueryBuilder":
         self._for_update = True
         self._for_update_skip_locked = skip_locked
@@ -497,7 +525,7 @@ class PostgreSQLQueryBuilder(QueryBuilder):
             return
 
         if self._on_conflict_do_nothing:
-            raise QueryException('DO NOTHING doest not support WHERE')
+            raise QueryException("DO NOTHING doest not support WHERE")
 
         if self._on_conflict_fields and self._on_conflict_do_updates:
             if self._on_conflict_do_update_wheres:
@@ -510,7 +538,7 @@ class PostgreSQLQueryBuilder(QueryBuilder):
             else:
                 self._on_conflict_wheres = criterion
         else:
-            raise QueryException('Can not have fieldless ON CONFLICT WHERE')
+            raise QueryException("Can not have fieldless ON CONFLICT WHERE")
 
     @builder
     def using(self, table: Union[Selectable, str]) -> "QueryBuilder":
@@ -519,7 +547,10 @@ class PostgreSQLQueryBuilder(QueryBuilder):
     def _distinct_sql(self, **kwargs: Any) -> str:
         if self._distinct_on:
             return "DISTINCT ON({distinct_on}) ".format(
-                distinct_on=",".join(term.get_sql(with_alias=True, **kwargs) for term in self._distinct_on)
+                distinct_on=",".join(
+                    term.get_sql(with_alias=True, **kwargs)
+                    for term in self._distinct_on
+                )
             )
         return super()._distinct_sql(**kwargs)
 
@@ -538,25 +569,29 @@ class PostgreSQLQueryBuilder(QueryBuilder):
 
         conflict_query = " ON CONFLICT"
         if self._on_conflict_fields:
-            fields = [f.get_sql(with_alias=True, **kwargs) for f in self._on_conflict_fields]
-            conflict_query += " (" + ', '.join(fields) + ")"
+            fields = [
+                f.get_sql(with_alias=True, **kwargs) for f in self._on_conflict_fields
+            ]
+            conflict_query += " (" + ", ".join(fields) + ")"
 
         if self._on_conflict_wheres:
-            conflict_query += " WHERE {where}".format(where=self._on_conflict_wheres.get_sql(subquery=True, **kwargs))
+            conflict_query += " WHERE {where}".format(
+                where=self._on_conflict_wheres.get_sql(subquery=True, **kwargs)
+            )
 
         return conflict_query
 
     def _for_update_sql(self, **kwargs) -> str:
         if self._for_update:
-            for_update = ' FOR UPDATE'
+            for_update = " FOR UPDATE"
             if self._for_update_of:
-                for_update += f' OF {", ".join([Table(item).get_sql(**kwargs) for item in self._for_update_of])}'
+                for_update += f" OF {', '.join([Table(item).get_sql(**kwargs) for item in self._for_update_of])}"
             if self._for_update_nowait:
-                for_update += ' NOWAIT'
+                for_update += " NOWAIT"
             elif self._for_update_skip_locked:
-                for_update += ' SKIP LOCKED'
+                for_update += " SKIP LOCKED"
         else:
-            for_update = ''
+            for_update = ""
 
         return for_update
 
@@ -584,11 +619,13 @@ class PostgreSQLQueryBuilder(QueryBuilder):
 
             if self._on_conflict_do_update_wheres:
                 action_sql += " WHERE {where}".format(
-                    where=self._on_conflict_do_update_wheres.get_sql(subquery=True, with_namespace=True, **kwargs)
+                    where=self._on_conflict_do_update_wheres.get_sql(
+                        subquery=True, with_namespace=True, **kwargs
+                    )
                 )
             return action_sql
 
-        return ''
+        return ""
 
     @builder
     def returning(self, *terms: Any) -> "PostgreSQLQueryBuilder":
@@ -599,7 +636,9 @@ class PostgreSQLQueryBuilder(QueryBuilder):
                 self._return_field_str(term)
             elif isinstance(term, (Function, ArithmeticExpression)):
                 if term.is_aggregate:
-                    raise QueryException("Aggregate functions are not allowed in returning")
+                    raise QueryException(
+                        "Aggregate functions are not allowed in returning"
+                    )
                 self._return_other(term)
             else:
                 self._return_other(self.wrap_constant(term, self._wrapper_cls))
@@ -609,15 +648,24 @@ class PostgreSQLQueryBuilder(QueryBuilder):
             if not any([self._insert_table, self._update_table, self._delete_from]):
                 raise QueryException("Returning can't be used in this query")
 
-            table_is_insert_or_update_table = field.table in {self._insert_table, self._update_table}
-            join_tables = set(itertools.chain.from_iterable([j.criterion.tables_ for j in self._joins]))
+            table_is_insert_or_update_table = field.table in {
+                self._insert_table,
+                self._update_table,
+            }
+            join_tables = set(
+                itertools.chain.from_iterable(
+                    [j.criterion.tables_ for j in self._joins]
+                )
+            )
             join_and_base_tables = set(self._from) | join_tables
             table_not_base_or_join = bool(term.tables_ - join_and_base_tables)
             if not table_is_insert_or_update_table and table_not_base_or_join:
                 raise QueryException("You can't return from other tables")
 
     def _set_returns_for_star(self) -> None:
-        self._returns = [returning for returning in self._returns if not hasattr(returning, "table")]
+        self._returns = [
+            returning for returning in self._returns if not hasattr(returning, "table")
+        ]
         self._return_star = True
 
     def _return_field(self, term: Union[str, Field]) -> None:
@@ -653,19 +701,25 @@ class PostgreSQLQueryBuilder(QueryBuilder):
 
     def _returning_sql(self, **kwargs: Any) -> str:
         return " RETURNING {returning}".format(
-            returning=",".join(term.get_sql(with_alias=True, **kwargs) for term in self._returns),
+            returning=",".join(
+                term.get_sql(with_alias=True, **kwargs) for term in self._returns
+            ),
         )
 
-    def get_sql(self, with_alias: bool = False, subquery: bool = False, **kwargs: Any) -> str:
+    def get_sql(
+        self, with_alias: bool = False, subquery: bool = False, **kwargs: Any
+    ) -> str:
         self._set_kwargs_defaults(kwargs)
 
-        querystring = super(PostgreSQLQueryBuilder, self).get_sql(with_alias, subquery, **kwargs)
+        querystring = super(PostgreSQLQueryBuilder, self).get_sql(
+            with_alias, subquery, **kwargs
+        )
 
         querystring += self._on_conflict_sql(**kwargs)
         querystring += self._on_conflict_action_sql(**kwargs)
 
         if self._returns:
-            kwargs['with_namespace'] = self._update_table and self.from_
+            kwargs["with_namespace"] = self._update_table and self.from_
             querystring += self._returning_sql(**kwargs)
         return querystring
 
@@ -704,7 +758,9 @@ class MSSQLQueryBuilder(FetchNextAndOffsetRowsQueryBuilder):
         self._top_percent: bool = False
 
     @builder
-    def top(self, value: Union[str, int], percent: bool = False, with_ties: bool = False) -> "MSSQLQueryBuilder":
+    def top(
+        self, value: Union[str, int], percent: bool = False, with_ties: bool = False
+    ) -> "MSSQLQueryBuilder":
         """
         Implements support for simple TOP clauses.
         https://docs.microsoft.com/en-us/sql/t-sql/queries/top-transact-sql?view=sql-server-2017
@@ -715,7 +771,9 @@ class MSSQLQueryBuilder(FetchNextAndOffsetRowsQueryBuilder):
             raise QueryException("TOP value must be an integer")
 
         if percent and not (0 <= int(value) <= 100):
-            raise QueryException("TOP value must be between 0 and 100 when `percent`" " is specified")
+            raise QueryException(
+                "TOP value must be between 0 and 100 when `percent` is specified"
+            )
         self._top_percent: bool = percent
         self._top_with_ties: bool = with_ties
 
@@ -733,7 +791,7 @@ class MSSQLQueryBuilder(FetchNextAndOffsetRowsQueryBuilder):
     def get_sql(self, *args: Any, **kwargs: Any) -> str:
         # MSSQL does not support group by a field alias.
         # Note: set directly in kwargs as they are re-used down the tree in the case of subqueries!
-        kwargs['groupby_alias'] = False
+        kwargs["groupby_alias"] = False
         return super().get_sql(*args, **kwargs)
 
     def _top_sql(self) -> str:
@@ -751,7 +809,10 @@ class MSSQLQueryBuilder(FetchNextAndOffsetRowsQueryBuilder):
         return "SELECT {distinct}{top}{select}".format(
             top=self._top_sql(),
             distinct="DISTINCT " if self._distinct else "",
-            select=",".join(term.get_sql(with_alias=True, subquery=True, **kwargs) for term in self._selects),
+            select=",".join(
+                term.get_sql(with_alias=True, subquery=True, **kwargs)
+                for term in self._selects
+            ),
         )
 
 
@@ -763,11 +824,16 @@ class ClickHouseQuery(Query):
     @classmethod
     def _builder(cls, **kwargs: Any) -> "ClickHouseQueryBuilder":
         return ClickHouseQueryBuilder(
-            dialect=Dialects.CLICKHOUSE, wrap_set_operation_queries=False, as_keyword=True, **kwargs
+            dialect=Dialects.CLICKHOUSE,
+            wrap_set_operation_queries=False,
+            as_keyword=True,
+            **kwargs,
         )
 
     @classmethod
-    def drop_database(self, database: Union[Database, str]) -> "ClickHouseDropQueryBuilder":
+    def drop_database(
+        self, database: Union[Database, str]
+    ) -> "ClickHouseDropQueryBuilder":
         return ClickHouseDropQueryBuilder().drop_database(database)
 
     @classmethod
@@ -815,19 +881,24 @@ class ClickHouseQueryBuilder(QueryBuilder):
         self._final = True
 
     @builder
-    def sample(self, sample: int, offset: Optional[int] = None) -> "ClickHouseQueryBuilder":
+    def sample(
+        self, sample: int, offset: Optional[int] = None
+    ) -> "ClickHouseQueryBuilder":
         self._sample = sample
         self._sample_offset = offset
 
     @staticmethod
     def _delete_sql(**kwargs: Any) -> str:
-        return 'ALTER TABLE'
+        return "ALTER TABLE"
 
     def _update_sql(self, **kwargs: Any) -> str:
         return "ALTER TABLE {table}".format(table=self._update_table.get_sql(**kwargs))
 
     def _from_sql(self, with_namespace: bool = False, **kwargs: Any) -> str:
-        selectable = ",".join(clause.get_sql(subquery=True, with_alias=True, **kwargs) for clause in self._from)
+        selectable = ",".join(
+            clause.get_sql(subquery=True, with_alias=True, **kwargs)
+            for clause in self._from
+        )
         if self._delete_from:
             return " {selectable} DELETE".format(selectable=selectable)
         clauses = [selectable]
@@ -843,7 +914,8 @@ class ClickHouseQueryBuilder(QueryBuilder):
         return " UPDATE {set}".format(
             set=",".join(
                 "{field}={value}".format(
-                    field=field.get_sql(**dict(kwargs, with_namespace=False)), value=value.get_sql(**kwargs)
+                    field=field.get_sql(**dict(kwargs, with_namespace=False)),
+                    value=value.get_sql(**kwargs),
                 )
                 for field, value in self._updates
             )
@@ -860,17 +932,30 @@ class ClickHouseQueryBuilder(QueryBuilder):
     def _distinct_sql(self, **kwargs: Any) -> str:
         if self._distinct_on:
             return "DISTINCT ON({distinct_on}) ".format(
-                distinct_on=",".join(term.get_sql(with_alias=True, **kwargs) for term in self._distinct_on)
+                distinct_on=",".join(
+                    term.get_sql(with_alias=True, **kwargs)
+                    for term in self._distinct_on
+                )
             )
         return super()._distinct_sql(**kwargs)
 
     @builder
     def limit_by(self, n, *by: Union[str, Term]) -> "ClickHouseQueryBuilder":
-        self._limit_by = (n, 0, [Field(field) if isinstance(field, str) else field for field in by])
+        self._limit_by = (
+            n,
+            0,
+            [Field(field) if isinstance(field, str) else field for field in by],
+        )
 
     @builder
-    def limit_offset_by(self, n, offset, *by: Union[str, Term]) -> "ClickHouseQueryBuilder":
-        self._limit_by = (n, offset, [Field(field) if isinstance(field, str) else field for field in by])
+    def limit_offset_by(
+        self, n, offset, *by: Union[str, Term]
+    ) -> "ClickHouseQueryBuilder":
+        self._limit_by = (
+            n,
+            offset,
+            [Field(field) if isinstance(field, str) else field for field in by],
+        )
 
     def _apply_pagination(self, querystring: str, **kwargs) -> str:
         # LIMIT BY isn't really a pagination per se but since we need
@@ -888,13 +973,18 @@ class ClickHouseQueryBuilder(QueryBuilder):
         else:
             return f" LIMIT {n} BY ({by})"
 
-    def replace_table(self, current_table: Optional[Table], new_table: Optional[Table]) -> "ClickHouseQueryBuilder":
+    def replace_table(
+        self, current_table: Optional[Table], new_table: Optional[Table]
+    ) -> "ClickHouseQueryBuilder":
         newone = super().replace_table(current_table, new_table)
         if self._limit_by:
             newone._limit_by = (
                 self._limit_by[0],
                 self._limit_by[1],
-                [column.replace_table(current_table, new_table) for column in self._limit_by[2]],
+                [
+                    column.replace_table(current_table, new_table)
+                    for column in self._limit_by[2]
+                ],
             )
         return newone
 
@@ -908,23 +998,27 @@ class ClickHouseDropQueryBuilder(DropQueryBuilder):
 
     @builder
     def drop_dictionary(self, dictionary: str) -> "ClickHouseDropQueryBuilder":
-        super()._set_target('DICTIONARY', dictionary)
+        super()._set_target("DICTIONARY", dictionary)
 
     @builder
     def drop_quota(self, quota: str) -> "ClickHouseDropQueryBuilder":
-        super()._set_target('QUOTA', quota)
+        super()._set_target("QUOTA", quota)
 
     @builder
     def on_cluster(self, cluster: str) -> "ClickHouseDropQueryBuilder":
         if self._cluster_name:
-            raise AttributeError("'DropQuery' object already has attribute cluster_name")
+            raise AttributeError(
+                "'DropQuery' object already has attribute cluster_name"
+            )
         self._cluster_name = cluster
 
     def get_sql(self, **kwargs: Any) -> str:
         query = super().get_sql(**kwargs)
 
         if self._drop_target_kind != "DICTIONARY" and self._cluster_name is not None:
-            query += " ON CLUSTER " + format_quotes(self._cluster_name, super().QUOTE_CHAR)
+            query += " ON CLUSTER " + format_quotes(
+                self._cluster_name, super().QUOTE_CHAR
+            )
 
         return query
 
@@ -950,7 +1044,9 @@ class SQLLiteQueryBuilder(QueryBuilder):
     QUERY_CLS = SQLLiteQuery
 
     def __init__(self, **kwargs: Any) -> None:
-        super().__init__(dialect=Dialects.SQLLITE, wrapper_cls=SQLLiteValueWrapper, **kwargs)
+        super().__init__(
+            dialect=Dialects.SQLLITE, wrapper_cls=SQLLiteValueWrapper, **kwargs
+        )
         self._insert_or_replace = False
 
     @builder

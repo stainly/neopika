@@ -25,7 +25,9 @@ class ReplaceTests(unittest.TestCase):
         self.assertEqual(expected_output, str(query))
 
     def test_replace_subquery(self):
-        query = SQLLiteQuery.into("abc").replace(SQLLiteQuery.from_("def").select("f1", "f2"))
+        query = SQLLiteQuery.into("abc").replace(
+            SQLLiteQuery.from_("def").select("f1", "f2")
+        )
         expected_output = 'REPLACE INTO "abc" VALUES ((SELECT "f1","f2" FROM "def"))'
         self.assertEqual(expected_output, str(query))
 

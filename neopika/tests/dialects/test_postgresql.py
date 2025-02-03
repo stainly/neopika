@@ -2,9 +2,9 @@ import unittest
 from collections import OrderedDict
 
 from neopika import (
+    JSON,
     Array,
     Field,
-    JSON,
     QueryException,
     Table,
 )
@@ -22,8 +22,10 @@ class InsertTests(unittest.TestCase):
 
 class JSONObjectTests(unittest.TestCase):
     def test_alias_set_correctly(self):
-        table = Table('jsonb_table')
-        q = PostgreSQLQuery.from_('abc').select(table.value.get_text_value('a').as_('name'))
+        table = Table("jsonb_table")
+        q = PostgreSQLQuery.from_("abc").select(
+            table.value.get_text_value("a").as_("name")
+        )
 
         self.assertEqual('''SELECT "value"->>'a' "name" FROM "abc"''', str(q))
 
@@ -59,32 +61,56 @@ class JSONOperatorsTests(unittest.TestCase):
     table_abc = Table("abc")
 
     def test_get_json_value_by_key(self):
-        q = PostgreSQLQuery.from_(self.table_abc).select("*").where(self.table_abc.json.get_json_value("dates"))
+        q = (
+            PostgreSQLQuery.from_(self.table_abc)
+            .select("*")
+            .where(self.table_abc.json.get_json_value("dates"))
+        )
 
         self.assertEqual('SELECT * FROM "abc" WHERE "json"->\'dates\'', str(q))
 
     def test_get_json_value_by_index(self):
-        q = PostgreSQLQuery.from_(self.table_abc).select("*").where(self.table_abc.json.get_json_value(1))
+        q = (
+            PostgreSQLQuery.from_(self.table_abc)
+            .select("*")
+            .where(self.table_abc.json.get_json_value(1))
+        )
 
         self.assertEqual('SELECT * FROM "abc" WHERE "json"->1', str(q))
 
     def test_get_text_value_by_key(self):
-        q = PostgreSQLQuery.from_(self.table_abc).select("*").where(self.table_abc.json.get_text_value("dates"))
+        q = (
+            PostgreSQLQuery.from_(self.table_abc)
+            .select("*")
+            .where(self.table_abc.json.get_text_value("dates"))
+        )
 
         self.assertEqual('SELECT * FROM "abc" WHERE "json"->>\'dates\'', str(q))
 
     def test_get_text_value_by_index(self):
-        q = PostgreSQLQuery.from_(self.table_abc).select("*").where(self.table_abc.json.get_text_value(1))
+        q = (
+            PostgreSQLQuery.from_(self.table_abc)
+            .select("*")
+            .where(self.table_abc.json.get_text_value(1))
+        )
 
         self.assertEqual('SELECT * FROM "abc" WHERE "json"->>1', str(q))
 
     def test_get_path_json_value(self):
-        q = PostgreSQLQuery.from_(self.table_abc).select("*").where(self.table_abc.json.get_path_json_value("{a,b}"))
+        q = (
+            PostgreSQLQuery.from_(self.table_abc)
+            .select("*")
+            .where(self.table_abc.json.get_path_json_value("{a,b}"))
+        )
 
         self.assertEqual('SELECT * FROM "abc" WHERE "json"#>\'{a,b}\'', str(q))
 
     def test_get_path_text_value(self):
-        q = PostgreSQLQuery.from_(self.table_abc).select("*").where(self.table_abc.json.get_path_text_value("{a,b}"))
+        q = (
+            PostgreSQLQuery.from_(self.table_abc)
+            .select("*")
+            .where(self.table_abc.json.get_path_text_value("{a,b}"))
+        )
 
         self.assertEqual('SELECT * FROM "abc" WHERE "json"#>>\'{a,b}\'', str(q))
 
@@ -112,7 +138,7 @@ class JSONBOperatorsTests(unittest.TestCase):
         )
 
         self.assertEqual(
-            "SELECT * " 'FROM "abc" ' 'WHERE "json"@>\'{"dates":"2018-07-10 - 2018-07-17"}\'',
+            'SELECT * FROM "abc" WHERE "json"@>\'{"dates":"2018-07-10 - 2018-07-17"}\'',
             str(q),
         )
 
@@ -132,7 +158,8 @@ class JSONBOperatorsTests(unittest.TestCase):
             )
         )
         self.assertEqual(
-            'SELECT * FROM "abc" ' 'WHERE "json"<@\'{"dates":"2018-07-10 - 2018-07-17","imported":"8"}\'',
+            'SELECT * FROM "abc" '
+            'WHERE "json"<@\'{"dates":"2018-07-10 - 2018-07-17","imported":"8"}\'',
             str(q),
         )
 
@@ -143,13 +170,18 @@ class JSONBOperatorsTests(unittest.TestCase):
             .where(self.table_abc.json.contained_by(["One", "Two", "Three"]))
         )
 
-        self.assertEqual('SELECT * FROM "abc" WHERE "json"<@\'["One","Two","Three"]\'', str(q))
+        self.assertEqual(
+            'SELECT * FROM "abc" WHERE "json"<@\'["One","Two","Three"]\'', str(q)
+        )
 
     def test_json_contained_by_with_complex_criterion(self):
         q = (
             PostgreSQLQuery.from_(self.table_abc)
             .select("*")
-            .where(self.table_abc.json.contained_by(["One", "Two", "Three"]) & (self.table_abc.id == 26))
+            .where(
+                self.table_abc.json.contained_by(["One", "Two", "Three"])
+                & (self.table_abc.id == 26)
+            )
         )
 
         self.assertEqual(
@@ -158,14 +190,24 @@ class JSONBOperatorsTests(unittest.TestCase):
         )
 
     def test_json_has_key(self):
-        q = PostgreSQLQuery.from_(self.table_abc).select("*").where(self.table_abc.json.has_key("dates"))
+        q = (
+            PostgreSQLQuery.from_(self.table_abc)
+            .select("*")
+            .where(self.table_abc.json.has_key("dates"))
+        )
 
         self.assertEqual('SELECT * FROM "abc" WHERE "json"?\'dates\'', str(q))
 
     def test_json_has_keys(self):
-        q = PostgreSQLQuery.from_(self.table_abc).select("*").where(self.table_abc.json.has_keys(["dates", "imported"]))
+        q = (
+            PostgreSQLQuery.from_(self.table_abc)
+            .select("*")
+            .where(self.table_abc.json.has_keys(["dates", "imported"]))
+        )
 
-        self.assertEqual("SELECT * FROM \"abc\" WHERE \"json\"?&ARRAY['dates','imported']", str(q))
+        self.assertEqual(
+            "SELECT * FROM \"abc\" WHERE \"json\"?&ARRAY['dates','imported']", str(q)
+        )
 
     def test_json_has_any_keys(self):
         q = (
@@ -174,7 +216,9 @@ class JSONBOperatorsTests(unittest.TestCase):
             .where(self.table_abc.json.has_any_keys(["dates", "imported"]))
         )
 
-        self.assertEqual("SELECT * FROM \"abc\" WHERE \"json\"?|ARRAY['dates','imported']", str(q))
+        self.assertEqual(
+            "SELECT * FROM \"abc\" WHERE \"json\"?|ARRAY['dates','imported']", str(q)
+        )
 
     def test_subnet_contains_inet(self):
         q = (
@@ -183,16 +227,22 @@ class JSONBOperatorsTests(unittest.TestCase):
             .where(self.table_abc.cidr >> "1.1.1.1")
         )
 
-        self.assertEqual("SELECT \"a\"<<2 FROM \"abc\" WHERE \"cidr\">>'1.1.1.1'", str(q))
+        self.assertEqual('SELECT "a"<<2 FROM "abc" WHERE "cidr">>\'1.1.1.1\'', str(q))
 
 
 class DistinctOnTests(unittest.TestCase):
     table_abc = Table("abc")
 
     def test_distinct_on(self):
-        q = PostgreSQLQuery.from_(self.table_abc).distinct_on("lname", self.table_abc.fname).select("lname", "id")
+        q = (
+            PostgreSQLQuery.from_(self.table_abc)
+            .distinct_on("lname", self.table_abc.fname)
+            .select("lname", "id")
+        )
 
-        self.assertEqual('''SELECT DISTINCT ON("lname","fname") "lname","id" FROM "abc"''', str(q))
+        self.assertEqual(
+            '''SELECT DISTINCT ON("lname","fname") "lname","id" FROM "abc"''', str(q)
+        )
 
 
 class ArrayTests(unittest.TestCase):
@@ -213,12 +263,14 @@ class ReturningClauseTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
-        cls.table_abc = Table('abc')
+        cls.table_abc = Table("abc")
 
     def test_returning_from_missing_table_raises_queryexception(self):
-        field_from_diff_table = Field('xyz', table=Table('other'))
+        field_from_diff_table = Field("xyz", table=Table("other"))
 
-        with self.assertRaisesRegex(QueryException, "You can't return from other tables"):
+        with self.assertRaisesRegex(
+            QueryException, "You can't return from other tables"
+        ):
             (
                 PostgreSQLQuery.from_(self.table_abc)
                 .where(self.table_abc.foo == self.table_abc.bar)
@@ -227,22 +279,26 @@ class ReturningClauseTests(unittest.TestCase):
             )
 
     def test_queryexception_if_returning_used_on_invalid_query(self):
-        with self.assertRaisesRegex(QueryException, "Returning can't be used in this query"):
-            PostgreSQLQuery.from_(self.table_abc).select('abc').returning('abc')
+        with self.assertRaisesRegex(
+            QueryException, "Returning can't be used in this query"
+        ):
+            PostgreSQLQuery.from_(self.table_abc).select("abc").returning("abc")
 
     def test_no_queryexception_if_returning_used_on_valid_query_type(self):
         # No exceptions for insert, update and delete queries
-        with self.subTest('DELETE'):
-            PostgreSQLQuery.from_(self.table_abc).where(self.table_abc.foo == self.table_abc.bar).delete().returning(
-                "id"
-            )
-        with self.subTest('UPDATE'):
-            PostgreSQLQuery.update(self.table_abc).where(self.table_abc.foo == 0).set("foo", "bar").returning("id")
-        with self.subTest('INSERT'):
-            PostgreSQLQuery.into(self.table_abc).insert('abc').returning('abc')
+        with self.subTest("DELETE"):
+            PostgreSQLQuery.from_(self.table_abc).where(
+                self.table_abc.foo == self.table_abc.bar
+            ).delete().returning("id")
+        with self.subTest("UPDATE"):
+            PostgreSQLQuery.update(self.table_abc).where(self.table_abc.foo == 0).set(
+                "foo", "bar"
+            ).returning("id")
+        with self.subTest("INSERT"):
+            PostgreSQLQuery.into(self.table_abc).insert("abc").returning("abc")
 
     def test_return_field_from_join_table(self):
-        new_table = Table('xyz')
+        new_table = Table("xyz")
         q = (
             PostgreSQLQuery.update(self.table_abc)
             .join(new_table)
@@ -255,7 +311,7 @@ class ReturningClauseTests(unittest.TestCase):
         self.assertEqual(
             'UPDATE "abc" '
             'JOIN "xyz" ON "xyz"."id"="abc"."xyz" '
-            'SET "foo"=\'bar\' '
+            "SET \"foo\"='bar' "
             'WHERE "abc"."foo"=0 '
             'RETURNING "xyz"."a"',
             str(q),

@@ -1,6 +1,7 @@
 import unittest
 
-from neopika import Query, Tables, functions as fn
+from neopika import Query, Tables
+from neopika import functions as fn
 
 
 class QuoteTests(unittest.TestCase):

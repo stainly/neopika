@@ -33,7 +33,9 @@ class TestArray(unittest.TestCase):
             ),
             (
                 "[toFixedString('mogwai',10),toFixedString('mono',10),toFixedString('bonobo',10)] arr",
-                Array(["mogwai", "mono", "bonobo"], ToFixedString, {"length": 10}).as_('arr'),
+                Array(["mogwai", "mono", "bonobo"], ToFixedString, {"length": 10}).as_(
+                    "arr"
+                ),
             ),
         ]
     )

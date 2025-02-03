@@ -1,8 +1,8 @@
 import unittest
 
-from neopika import Column, Columns, Query, Tables, Table
-from neopika.terms import ValueWrapper, Index
+from neopika import Column, Columns, Query, Table, Tables
 from neopika.enums import ReferenceOption
+from neopika.terms import Index, ValueWrapper
 
 
 class CreateTableTests(unittest.TestCase):
@@ -15,27 +15,39 @@ class CreateTableTests(unittest.TestCase):
             b = Column("b", "VARCHAR(100)", False)
             q = Query.create_table(self.new_table).columns(a, b)
 
-            self.assertEqual('CREATE TABLE "abc" ("a" INT NULL,"b" VARCHAR(100) NOT NULL)', str(q))
+            self.assertEqual(
+                'CREATE TABLE "abc" ("a" INT NULL,"b" VARCHAR(100) NOT NULL)', str(q)
+            )
 
         with self.subTest("with defaults"):
             a = Column("a", "INT", default=ValueWrapper(42))
             b = Column("b", "VARCHAR(100)", default=ValueWrapper("foo"))
             q = Query.create_table(self.new_table).columns(a, b)
 
-            self.assertEqual('CREATE TABLE "abc" ("a" INT DEFAULT 42,"b" VARCHAR(100) DEFAULT \'foo\')', str(q))
+            self.assertEqual(
+                'CREATE TABLE "abc" ("a" INT DEFAULT 42,"b" VARCHAR(100) DEFAULT \'foo\')',
+                str(q),
+            )
 
         with self.subTest("with unwrapped defaults"):
             a = Column("a", "INT", default=42)
             b = Column("b", "VARCHAR(100)", default="foo")
             q = Query.create_table(self.new_table).columns(a, b)
 
-            self.assertEqual('CREATE TABLE "abc" ("a" INT DEFAULT 42,"b" VARCHAR(100) DEFAULT \'foo\')', str(q))
+            self.assertEqual(
+                'CREATE TABLE "abc" ("a" INT DEFAULT 42,"b" VARCHAR(100) DEFAULT \'foo\')',
+                str(q),
+            )
 
         with self.subTest("with period for"):
             a = Column("id", "INT")
             b = Column("valid_from", "DATETIME")
             c = Column("valid_to", "DATETIME")
-            q = Query.create_table(self.new_table).columns(a, b, c).period_for('valid_period', b, c)
+            q = (
+                Query.create_table(self.new_table)
+                .columns(a, b, c)
+                .period_for("valid_period", b, c)
+            )
 
             self.assertEqual(
                 'CREATE TABLE "abc" ('
@@ -52,14 +64,27 @@ class CreateTableTests(unittest.TestCase):
             self.assertEqual('CREATE TABLE "abc" ("a" INT,"b" VARCHAR(100))', str(q))
 
         with self.subTest("with temporary keyword"):
-            q = Query.create_table(self.new_table).temporary().columns(self.foo, self.bar)
+            q = (
+                Query.create_table(self.new_table)
+                .temporary()
+                .columns(self.foo, self.bar)
+            )
 
-            self.assertEqual('CREATE TEMPORARY TABLE "abc" ("a" INT,"b" VARCHAR(100))', str(q))
+            self.assertEqual(
+                'CREATE TEMPORARY TABLE "abc" ("a" INT,"b" VARCHAR(100))', str(q)
+            )
 
         with self.subTest("with primary key"):
-            q = Query.create_table(self.new_table).columns(self.foo, self.bar).primary_key(self.foo, self.bar)
+            q = (
+                Query.create_table(self.new_table)
+                .columns(self.foo, self.bar)
+                .primary_key(self.foo, self.bar)
+            )
 
-            self.assertEqual('CREATE TABLE "abc" ("a" INT,"b" VARCHAR(100),PRIMARY KEY ("a","b"))', str(q))
+            self.assertEqual(
+                'CREATE TABLE "abc" ("a" INT,"b" VARCHAR(100),PRIMARY KEY ("a","b"))',
+                str(q),
+            )
 
         with self.subTest("with simple foreign key"):
             cref, dref = Columns(("c", "INT"), ("d", "VARCHAR(100)"))
@@ -107,30 +132,56 @@ class CreateTableTests(unittest.TestCase):
                 .unique(self.foo)
             )
 
-            self.assertEqual('CREATE TABLE "abc" ("a" INT,"b" VARCHAR(100),UNIQUE ("a","b"),UNIQUE ("a"))', str(q))
+            self.assertEqual(
+                'CREATE TABLE "abc" ("a" INT,"b" VARCHAR(100),UNIQUE ("a","b"),UNIQUE ("a"))',
+                str(q),
+            )
 
         with self.subTest("with system versioning"):
-            q = Query.create_table(self.new_table).columns(self.foo, self.bar).with_system_versioning()
+            q = (
+                Query.create_table(self.new_table)
+                .columns(self.foo, self.bar)
+                .with_system_versioning()
+            )
 
-            self.assertEqual('CREATE TABLE "abc" ("a" INT,"b" VARCHAR(100)) WITH SYSTEM VERSIONING', str(q))
+            self.assertEqual(
+                'CREATE TABLE "abc" ("a" INT,"b" VARCHAR(100)) WITH SYSTEM VERSIONING',
+                str(q),
+            )
 
         with self.subTest("with unlogged keyword"):
-            q = Query.create_table(self.new_table).unlogged().columns(self.foo, self.bar)
+            q = (
+                Query.create_table(self.new_table)
+                .unlogged()
+                .columns(self.foo, self.bar)
+            )
 
-            self.assertEqual('CREATE UNLOGGED TABLE "abc" ("a" INT,"b" VARCHAR(100))', str(q))
+            self.assertEqual(
+                'CREATE UNLOGGED TABLE "abc" ("a" INT,"b" VARCHAR(100))', str(q)
+            )
 
         with self.subTest("with if not exists keyword"):
-            q = Query.create_table(self.new_table).if_not_exists().columns(self.foo, self.bar)
+            q = (
+                Query.create_table(self.new_table)
+                .if_not_exists()
+                .columns(self.foo, self.bar)
+            )
 
-            self.assertEqual('CREATE TABLE IF NOT EXISTS "abc" ("a" INT,"b" VARCHAR(100))', str(q))
+            self.assertEqual(
+                'CREATE TABLE IF NOT EXISTS "abc" ("a" INT,"b" VARCHAR(100))', str(q)
+            )
 
     def test_create_table_with_select(self):
-        select = Query.from_(self.existing_table).select(self.existing_table.foo, self.existing_table.bar)
+        select = Query.from_(self.existing_table).select(
+            self.existing_table.foo, self.existing_table.bar
+        )
 
         with self.subTest("without temporary keyword"):
             q = Query.create_table(self.new_table).as_select(select)
 
-            self.assertEqual('CREATE TABLE "abc" AS (SELECT "foo","bar" FROM "efg")', str(q))
+            self.assertEqual(
+                'CREATE TABLE "abc" AS (SELECT "foo","bar" FROM "efg")', str(q)
+            )
 
         with self.subTest("with temporary keyword"):
             q = Query.create_table(self.new_table).temporary().as_select(select)
@@ -146,21 +197,27 @@ class CreateTableTests(unittest.TestCase):
         self.assertEqual("", str(q))
 
     def test_create_table_with_select_and_columns_fails(self):
-        select = Query.from_(self.existing_table).select(self.existing_table.foo, self.existing_table.bar)
+        select = Query.from_(self.existing_table).select(
+            self.existing_table.foo, self.existing_table.bar
+        )
 
         with self.subTest("for columns before as_select"):
             with self.assertRaises(AttributeError):
-                Query.create_table(self.new_table).columns(self.foo, self.bar).as_select(select)
+                Query.create_table(self.new_table).columns(
+                    self.foo, self.bar
+                ).as_select(select)
 
         with self.subTest("for as_select before columns"):
             with self.assertRaises(AttributeError):
-                Query.create_table(self.new_table).as_select(select).columns(self.foo, self.bar)
+                Query.create_table(self.new_table).as_select(select).columns(
+                    self.foo, self.bar
+                )
 
         with self.subTest("repeated foreign key"):
             with self.assertRaises(AttributeError):
-                Query.create_table(self.new_table).foreign_key([self.foo], self.existing_table, [self.bar]).foreign_key(
+                Query.create_table(self.new_table).foreign_key(
                     [self.foo], self.existing_table, [self.bar]
-                )
+                ).foreign_key([self.foo], self.existing_table, [self.bar])
 
     def test_create_table_as_select_not_query_raises_error(self):
         with self.assertRaises(TypeError):
@@ -181,21 +238,36 @@ class CreateIndexTests(unittest.TestCase):
         )
 
     def test_create_index_where(self) -> None:
-        q = Query.create_index(self.new_index).on(self.new_table).columns(*self.columns).where(self.where)
+        q = (
+            Query.create_index(self.new_index)
+            .on(self.new_table)
+            .columns(*self.columns)
+            .where(self.where)
+        )
         self.assertEqual(
             f'CREATE INDEX "{self.new_index.name}" ON "{self.new_table.get_table_name()}"({", ".join([c.name for c in self.columns])}) WHERE {self.where.get_sql()}',
             q.get_sql(),
         )
 
     def test_create_index_unique(self) -> None:
-        q = Query.create_index(self.new_index).on(self.new_table).columns(*self.columns).unique()
+        q = (
+            Query.create_index(self.new_index)
+            .on(self.new_table)
+            .columns(*self.columns)
+            .unique()
+        )
         self.assertEqual(
             f'CREATE UNIQUE INDEX "{self.new_index.name}" ON "{self.new_table.get_table_name()}"({", ".join([c.name for c in self.columns])})',
             q.get_sql(),
         )
 
     def test_create_index_if_not_exists(self) -> None:
-        q = Query.create_index(self.new_index).on(self.new_table).columns(*self.columns).if_not_exists()
+        q = (
+            Query.create_index(self.new_index)
+            .on(self.new_table)
+            .columns(*self.columns)
+            .if_not_exists()
+        )
         self.assertEqual(
             f'CREATE INDEX IF NOT EXISTS "{self.new_index.name}" ON "{self.new_table.get_table_name()}"({", ".join([c.name for c in self.columns])})',
             q.get_sql(),
