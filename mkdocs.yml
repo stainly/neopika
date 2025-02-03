@@ -1,0 +1,79 @@
+site_name: NeoPika
+site_description: Python SQL Query Builder
+repo_url: https://github.com/kayak/neopika
+repo_name: kayak/neopika
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          setup_commands:
+            - import sys
+            - sys.path.append(".")
+          selection:
+            members: true
+          rendering:
+            show_source: true
+            show_if_no_docstring: true
+  - include-markdown
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - admonition
+  - pymdownx.details
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - def_list
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: installation.md
+    - Tutorial: tutorial.md
+  - User Guide:
+    - Advanced Usage: advanced.md
+    - Extending NeoPika: extending.md
+  - API Reference:
+    - Overview: reference.md
+    - Query Builder: api/queries.md
+    - Terms: api/terms.md
+    - Functions: api/functions.md
+    - Analytics: api/analytics.md
+    - Dialects: api/dialects.md
+    - Enums: api/enums.md
+    - Pseudo Columns: api/pseudocolumns.md
+    - Utilities: api/utils.md
+  - Contributing: contributing.md 
