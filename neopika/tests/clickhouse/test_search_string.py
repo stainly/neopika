@@ -4,11 +4,11 @@ from parameterized import parameterized
 
 from neopika import Field
 from neopika.clickhouse.search_string import (
-    Match,
     Like,
-    NotLike,
-    MultiSearchAny,
+    Match,
     MultiMatchAny,
+    MultiSearchAny,
+    NotLike,
 )
 
 

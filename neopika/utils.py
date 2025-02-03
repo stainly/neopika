@@ -80,7 +80,9 @@ def ignore_copy(func: Callable) -> Callable:
             "__setstate__",
             "__getnewargs__",
         ]:
-            raise AttributeError("'%s' object has no attribute '%s'" % (self.__class__.__name__, name))
+            raise AttributeError(
+                "'%s' object has no attribute '%s'" % (self.__class__.__name__, name)
+            )
 
         return func(self, name)
 
@@ -117,11 +119,15 @@ def format_alias_sql(
     if alias is None:
         return sql
     return "{sql}{_as}{alias}".format(
-        sql=sql, _as=' AS ' if as_keyword else ' ', alias=format_quotes(alias, alias_quote_char or quote_char)
+        sql=sql,
+        _as=" AS " if as_keyword else " ",
+        alias=format_quotes(alias, alias_quote_char or quote_char),
     )
 
 
-def validate(*args: Any, exc: Optional[Exception] = None, type: Optional[Type] = None) -> None:
+def validate(
+    *args: Any, exc: Optional[Exception] = None, type: Optional[Type] = None
+) -> None:
     if type is not None:
         for arg in args:
             if not isinstance(arg, type):

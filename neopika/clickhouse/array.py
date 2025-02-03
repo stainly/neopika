@@ -9,7 +9,13 @@ from neopika.utils import format_alias_sql
 
 
 class Array(Term):
-    def __init__(self, values: list, converter_cls=None, converter_options: dict = None, alias: str = None):
+    def __init__(
+        self,
+        values: list,
+        converter_cls=None,
+        converter_options: dict = None,
+        alias: str = None,
+    ):
         super().__init__(alias)
         self._values = values
         self._converter_cls = converter_cls
@@ -44,7 +50,14 @@ class HasAny(Function):
         self.args = ()
         self.name = "hasAny"
 
-    def get_sql(self, with_alias=False, with_namespace=False, quote_char=None, dialect=None, **kwargs):
+    def get_sql(
+        self,
+        with_alias=False,
+        with_namespace=False,
+        quote_char=None,
+        dialect=None,
+        **kwargs,
+    ):
         left = self._left_array.get_sql()
         right = self._right_array.get_sql()
         sql = "{name}({left},{right})".format(

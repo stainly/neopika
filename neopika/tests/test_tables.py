@@ -1,7 +1,16 @@
 # from neopika.terms import ValueWrapper, SystemTimeValue
 import unittest
 
-from neopika import Database, Dialects, Schema, SQLLiteQuery, Table, Tables, Query, SYSTEM_TIME
+from neopika import (
+    SYSTEM_TIME,
+    Database,
+    Dialects,
+    Query,
+    Schema,
+    SQLLiteQuery,
+    Table,
+    Tables,
+)
 
 __author__ = "Timothy Heys"
 __email__ = "theys@kayak.com"
@@ -16,7 +25,9 @@ class TableStructureTests(unittest.TestCase):
     def test_table_with_alias(self):
         table = Table("test_table").as_("my_table")
 
-        self.assertEqual('"test_table" "my_table"', table.get_sql(with_alias=True, quote_char='"'))
+        self.assertEqual(
+            '"test_table" "my_table"', table.get_sql(with_alias=True, quote_char='"')
+        )
 
     def test_schema_table_attr(self):
         table = Schema("x_schema").test_table
@@ -40,38 +51,58 @@ class TableStructureTests(unittest.TestCase):
 
     def test_table_for_system_time_sql(self):
         with self.subTest("with between criterion"):
-            table = Table("test_table").for_(SYSTEM_TIME.between('2020-01-01', '2020-02-01'))
+            table = Table("test_table").for_(
+                SYSTEM_TIME.between("2020-01-01", "2020-02-01")
+            )
 
-            self.assertEqual('"test_table" FOR SYSTEM_TIME BETWEEN \'2020-01-01\' AND \'2020-02-01\'', str(table))
+            self.assertEqual(
+                "\"test_table\" FOR SYSTEM_TIME BETWEEN '2020-01-01' AND '2020-02-01'",
+                str(table),
+            )
 
         with self.subTest("with as of criterion"):
-            table = Table("test_table").for_(SYSTEM_TIME.as_of('2020-01-01'))
+            table = Table("test_table").for_(SYSTEM_TIME.as_of("2020-01-01"))
 
-            self.assertEqual('"test_table" FOR SYSTEM_TIME AS OF \'2020-01-01\'', str(table))
+            self.assertEqual(
+                "\"test_table\" FOR SYSTEM_TIME AS OF '2020-01-01'", str(table)
+            )
 
         with self.subTest("with from to criterion"):
-            table = Table("test_table").for_(SYSTEM_TIME.from_to('2020-01-01', '2020-02-01'))
+            table = Table("test_table").for_(
+                SYSTEM_TIME.from_to("2020-01-01", "2020-02-01")
+            )
 
-            self.assertEqual('"test_table" FOR SYSTEM_TIME FROM \'2020-01-01\' TO \'2020-02-01\'', str(table))
+            self.assertEqual(
+                "\"test_table\" FOR SYSTEM_TIME FROM '2020-01-01' TO '2020-02-01'",
+                str(table),
+            )
 
     def test_table_for_period_sql(self):
         with self.subTest("with between criterion"):
             table = Table("test_table")
-            table = table.for_(table.valid_period.between('2020-01-01', '2020-02-01'))
+            table = table.for_(table.valid_period.between("2020-01-01", "2020-02-01"))
 
-            self.assertEqual('"test_table" FOR "valid_period" BETWEEN \'2020-01-01\' AND \'2020-02-01\'', str(table))
+            self.assertEqual(
+                "\"test_table\" FOR \"valid_period\" BETWEEN '2020-01-01' AND '2020-02-01'",
+                str(table),
+            )
 
         with self.subTest("with as of criterion"):
             table = Table("test_table")
-            table = table.for_(table.valid_period.as_of('2020-01-01'))
+            table = table.for_(table.valid_period.as_of("2020-01-01"))
 
-            self.assertEqual('"test_table" FOR "valid_period" AS OF \'2020-01-01\'', str(table))
+            self.assertEqual(
+                '"test_table" FOR "valid_period" AS OF \'2020-01-01\'', str(table)
+            )
 
         with self.subTest("with from to criterion"):
             table = Table("test_table")
-            table = table.for_(table.valid_period.from_to('2020-01-01', '2020-02-01'))
+            table = table.for_(table.valid_period.from_to("2020-01-01", "2020-02-01"))
 
-            self.assertEqual('"test_table" FOR "valid_period" FROM \'2020-01-01\' TO \'2020-02-01\'', str(table))
+            self.assertEqual(
+                "\"test_table\" FOR \"valid_period\" FROM '2020-01-01' TO '2020-02-01'",
+                str(table),
+            )
 
 
 class TableEqualityTests(unittest.TestCase):

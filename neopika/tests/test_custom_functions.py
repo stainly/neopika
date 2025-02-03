@@ -33,7 +33,9 @@ class TestFunctionalCustomFunction(unittest.TestCase):
 
         DateDiff = CustomFunction("DATE_DIFF", ["interval", "start_date", "end_date"])
 
-        q = Query.from_(service).select(DateDiff("day", service.created_date, service.updated_date))
+        q = Query.from_(service).select(
+            DateDiff("day", service.created_date, service.updated_date)
+        )
 
         self.assertEqual(
             'SELECT DATE_DIFF(\'day\',"created_date","updated_date") FROM "service"',

@@ -2,6 +2,8 @@ import unittest
 
 from neopika import (
     Field as F,
+)
+from neopika import (
     Interval,
 )
 from neopika.enums import Dialects

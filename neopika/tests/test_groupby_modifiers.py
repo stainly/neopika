@@ -1,6 +1,7 @@
 import unittest
 
-from neopika import Query, Rollup, RollupException, Table, functions as fn
+from neopika import Query, Rollup, RollupException, Table
+from neopika import functions as fn
 
 __author__ = "Timothy Heys"
 __email__ = "theys@kayak.com"
@@ -16,7 +17,9 @@ class RollupTests(unittest.TestCase):
             .rollup(self.table.foo, vendor="mysql")
         )
 
-        self.assertEqual('SELECT "foo",SUM("bar") FROM "abc" GROUP BY "foo" WITH ROLLUP', str(q))
+        self.assertEqual(
+            'SELECT "foo",SUM("bar") FROM "abc" GROUP BY "foo" WITH ROLLUP', str(q)
+        )
 
     def test_mysql_rollup_two_groupbys(self):
         q = (
@@ -32,18 +35,28 @@ class RollupTests(unittest.TestCase):
 
     def test_no_rollup_before_groupby(self):
         with self.assertRaises(RollupException):
-            Query.from_(self.table).select(self.table.foo, fn.Sum(self.table.bar)).rollup(vendor="mysql")
+            Query.from_(self.table).select(
+                self.table.foo, fn.Sum(self.table.bar)
+            ).rollup(vendor="mysql")
 
     def test_no_rollup_after_rollup_mysql(self):
         with self.assertRaises(AttributeError):
-            Query.from_(self.table).select(self.table.foo, self.table.fiz, fn.Sum(self.table.bar)).rollup(
-                self.table.foo, vendor="mysql"
-            ).rollup(self.table.fiz, vendor="mysql")
+            Query.from_(self.table).select(
+                self.table.foo, self.table.fiz, fn.Sum(self.table.bar)
+            ).rollup(self.table.foo, vendor="mysql").rollup(
+                self.table.fiz, vendor="mysql"
+            )
 
     def test_verticaoracle_func_one_groupby(self):
-        q = Query.from_(self.table).select(self.table.foo, fn.Sum(self.table.bar)).groupby(Rollup(self.table.foo))
+        q = (
+            Query.from_(self.table)
+            .select(self.table.foo, fn.Sum(self.table.bar))
+            .groupby(Rollup(self.table.foo))
+        )
 
-        self.assertEqual('SELECT "foo",SUM("bar") FROM "abc" GROUP BY ROLLUP("foo")', str(q))
+        self.assertEqual(
+            'SELECT "foo",SUM("bar") FROM "abc" GROUP BY ROLLUP("foo")', str(q)
+        )
 
     def test_verticaoracle_func_two_groupbys(self):
         q = (
@@ -65,7 +78,9 @@ class RollupTests(unittest.TestCase):
     def test_verticaoracle_func_partial(self):
         q = (
             Query.from_(self.table)
-            .select(self.table.foo, self.table.fiz, self.table.buz, fn.Sum(self.table.bar))
+            .select(
+                self.table.foo, self.table.fiz, self.table.buz, fn.Sum(self.table.bar)
+            )
             .groupby(
                 Rollup(
                     self.table.foo,
@@ -81,9 +96,15 @@ class RollupTests(unittest.TestCase):
         )
 
     def test_verticaoracle_from_groupbys(self):
-        q = Query.from_(self.table).select(self.table.foo, fn.Sum(self.table.bar)).rollup(self.table.foo)
+        q = (
+            Query.from_(self.table)
+            .select(self.table.foo, fn.Sum(self.table.bar))
+            .rollup(self.table.foo)
+        )
 
-        self.assertEqual('SELECT "foo",SUM("bar") FROM "abc" GROUP BY ROLLUP("foo")', str(q))
+        self.assertEqual(
+            'SELECT "foo",SUM("bar") FROM "abc" GROUP BY ROLLUP("foo")', str(q)
+        )
 
     def test_verticaoracle_from_two_groupbys(self):
         q = (
@@ -146,7 +167,9 @@ class RollupTests(unittest.TestCase):
             )
         )
 
-        self.assertEqual('SELECT "buz" FROM "abc" GROUP BY ROLLUP(("foo","bar"),"fiz")', str(q))
+        self.assertEqual(
+            'SELECT "buz" FROM "abc" GROUP BY ROLLUP(("foo","bar"),"fiz")', str(q)
+        )
 
     def test_verticaoracle_rollups_with_multiple_rollups_and_parity(self):
         q = (

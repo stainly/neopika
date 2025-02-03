@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from neopika import Query, Table, Field
+from neopika import Field, Query, Table
 from neopika.terms import AtTimezone
 
 
@@ -9,10 +9,10 @@ class FieldAliasTests(TestCase):
 
     def test_when_alias_specified(self):
         c1 = Field("foo", alias="bar")
-        self.assertEqual('bar', str(c1.alias))
+        self.assertEqual("bar", str(c1.alias))
 
         c1 = Field("foo").as_("bar")
-        self.assertEqual('bar', str(c1.alias))
+        self.assertEqual("bar", str(c1.alias))
 
 
 class FieldInitTests(TestCase):
@@ -34,10 +34,14 @@ class FieldHashingTests(TestCase):
         self.assertTrue(hash(customer_name) != hash(client_name))
 
     def test_non_tabled_aliased_eq_fields_equally_hashed(self):
-        self.assertTrue(hash(Field(name="A", alias="my_a")) == hash(Field(name="A", alias="my_a")))
+        self.assertTrue(
+            hash(Field(name="A", alias="my_a")) == hash(Field(name="A", alias="my_a"))
+        )
 
     def test_non_tabled_aliased_ne_fields_differently_hashed(self):
-        self.assertTrue(hash(Field(name="A", alias="my_a1")) != hash(Field(name="A", alias="my_a2")))
+        self.assertTrue(
+            hash(Field(name="A", alias="my_a1")) != hash(Field(name="A", alias="my_a2"))
+        )
 
     def test_non_tabled_eq_fields_equally_hashed(self):
         self.assertTrue(hash(Field(name="A")) == hash(Field(name="A")))
@@ -49,17 +53,23 @@ class FieldHashingTests(TestCase):
 class AtTimezoneTests(TestCase):
     def test_when_interval_not_specified(self):
         query = Query.from_("customers").select(AtTimezone("date", "US/Eastern"))
-        self.assertEqual('SELECT "date" AT TIME ZONE \'US/Eastern\' FROM "customers"', str(query))
+        self.assertEqual(
+            'SELECT "date" AT TIME ZONE \'US/Eastern\' FROM "customers"', str(query)
+        )
 
     def test_when_interval_specified(self):
-        query = Query.from_("customers").select(AtTimezone("date", "-06:00", interval=True))
+        query = Query.from_("customers").select(
+            AtTimezone("date", "-06:00", interval=True)
+        )
         self.assertEqual(
             'SELECT "date" AT TIME ZONE INTERVAL \'-06:00\' FROM "customers"',
             str(query),
         )
 
     def test_when_alias_specified(self):
-        query = Query.from_("customers").select(AtTimezone("date", "US/Eastern", alias="alias1"))
+        query = Query.from_("customers").select(
+            AtTimezone("date", "US/Eastern", alias="alias1")
+        )
         self.assertEqual(
             'SELECT "date" AT TIME ZONE \'US/Eastern\' "alias1" FROM "customers"',
             str(query),
