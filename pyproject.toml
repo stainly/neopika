@@ -4,12 +4,9 @@ build-backend = "hatchling.build"
 
 [project]
 name = "NeoPika"
-dynamic = ["version"]
+version = "0.48.9"
 description = "A SQL query builder API for Python"
 readme = "README.md"
-authors = [
-    { name = "Timothy Heys", email = "theys@kayak.com" },
-]
 license = { text = "Apache License Version 2.0" }
 classifiers = [
     "License :: OSI Approved :: Apache Software License",
@@ -62,6 +59,7 @@ dev = [
   "coverage==5.1",
   "ruff>=0.9",
   "pre-commit == 2.17.*",
+  "commitizen == 3.2.*",
 ]
 docs = [
   "mkdocs>=1.6.1",
@@ -144,3 +142,10 @@ commands =
 venvPath = "."
 venv = ".venv"
 reportIncompatibleVariableOverride = false
+
+[tool.commitizen]
+update_changelog_on_bump = false
+bump_message = "bump: $current_version → $new_version"
+changelog_incremental = false
+changelog_merge_prerelease = true
+version_provider = "pep621"
