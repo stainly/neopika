@@ -61,6 +61,7 @@ dev = [
   "tox-uv>=1.20",
   "coverage==5.1",
   "ruff>=0.9",
+  "pre-commit == 2.17.*",
 ]
 docs = [
   "mkdocs>=1.6.1",
@@ -138,5 +139,3 @@ commands =
     python -m coverage run -m unittest discover neopika.tests
     coverage report -m
 """
-
-
