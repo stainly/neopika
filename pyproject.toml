@@ -139,3 +139,8 @@ commands =
     python -m coverage run -m unittest discover neopika.tests
     coverage report -m
 """
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+reportIncompatibleVariableOverride = false
