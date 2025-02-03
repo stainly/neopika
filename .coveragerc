@@ -1,4 +1,4 @@
 [run]
-source = pypika
+source = neopika
 relative_files = True
 command_line = -m unittest discover

@@ -1,3 +1,12 @@
+NOTICE: This software, NeoPika, is a fork of PyPika (https://github.com/kayak/pypika).
+This fork was created due to the original project being unmaintained. As a derivative work
+of PyPika, it maintains the same Apache License 2.0 but includes and will include
+modifications to the original codebase. All modifications are also licensed under
+the Apache License 2.0.
+
+Original PyPika Copyright 2020 KAYAK Germany, GmbH
+NeoPika modifications Copyright 2024 Contributors
+
                                  Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
