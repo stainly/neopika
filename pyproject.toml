@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "NeoPika"
-version = "0.48.9"
+version = "0.49.0"
 description = "A SQL query builder API for Python"
 readme = "README.md"
 license = { text = "Apache License Version 2.0" }
