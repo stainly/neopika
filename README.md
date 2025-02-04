@@ -1,13 +1,12 @@
 # NeoPika - Python Query Builder
 
 [![Build Status](https://github.com/stainly/neopika/actions/workflows/ci.yml/badge.svg)](https://github.com/stainly/neopika/actions)
-<!-- [![Docs](https://readthedocs.org/projects/neopika/badge/?version=latest)](http://neopika.readthedocs.io/en/latest/) -->
-<!-- [![PyPi](https://img.shields.io/pypi/v/neopika.svg?style=flat)](https://pypi.python.org/pypi/neopika) -->
-[![License](https://img.shields.io/hexpm/l/plug.svg?maxAge=2592000)](http://www.apache.org/licenses/LICENSE-2.0)
+[![PyPI version](https://badge.fury.io/py/neopika.svg)](https://badge.fury.io/py/neopika)
+[![License](https://img.shields.io/pypi/l/neopika.svg)](https://pypi.python.org/pypi/neopika/)
 
 ## Important Note
 
-NeoPika is a fork of [PyPika](https://github.com/kayak/pypika), created to maintain and advance the project as the original repository has become unmaintained. While we maintain full compatibility with PyPika's core functionality, we are actively developing new features, fixing bugs, and improving the codebase. All modifications are made under the same Apache 2.0 license as the original project.
+NeoPika is a fork of [PyPika](https://github.com/kayak/pypika), developed by the incredible poeple at Kayak! NeoPika was created to maintain and advance the project as the original repository has become unmaintained. While we maintain full compatibility with PyPika's core functionality, we are actively developing new features, fixing bugs, and improving the codebase. All modifications are made under the same Apache 2.0 license as the original project.
 
 If you're coming from PyPika, you'll find all the functionality you're familiar with, plus additional improvements and modern tooling support (like `uv` for dependency management and `mkdocs` for documentation).
 

@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  bump-version:
-    name: Bump Version
+  release:
+    name: Release
     runs-on: ubuntu-latest
 
     steps:
@@ -42,3 +42,38 @@ jobs:
         env:
           UV_PUBLISH_USERNAME: __token__
           UV_PUBLISH_PASSWORD: ${{ secrets.STAINLY_PYPI }}
+
+  build-docs:
+    name: build docs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+      - name: build
+        run: uv run --group docs mkdocs build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          name: github-pages
+          path: site/
+
+  deploy-docs:
+    runs-on: ubuntu-latest
+    needs: build-docs
+
+    permissions:
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to Github Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
